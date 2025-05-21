@@ -1,0 +1,57 @@
+package OrangeHRMLogin.java;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
+
+public class PatentDateDifference {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\DELL\\eclipse-workspace\\AutomationTest\\chromedriver.exe");
+
+        WebDriver driver = new ChromeDriver();
+
+    
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+      
+        driver.get("https://www.wipo.int/patinformed/")
+       
+        WebElement searchButton = driver.findElement(By.xpath("//*[@class='svg-inline--fa fa-magnifying-glass']"));
+        searchButton.click();
+        Thread.sleep(5000);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+     WebElement searchBox = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[text()='DISCLAIMER']")));
+     driver.findElement(By.xpath("//*[text()='I have read and agree to the terms']")).click();    
+     Thread.sleep(5000);
+        WebElement PatentName = driver.findElement(By.xpath("(//div[@class='title cropper'])[1]"));
+        PatentName.click();
+
+        Thread.sleep(5000);
+        
+        WebElement filingDateElement = driver.findElement(By.xpath("(//b[text()='Filing date']/ancestor::td/following-sibling::td//span)[1]"));
+        WebElement publicationDateElement = driver.findElement(By.xpath("(//b[text()='Publication date']/ancestor::td/following-sibling::td)[1]"));
+
+        String filingDateStr = filingDateElement.getText().trim().split(" ")[0];
+        String publicationDateStr = publicationDateElement.getText().trim().split(" ")[0];
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate filingDate = LocalDate.parse(filingDateStr, formatter);
+        LocalDate publicationDate = LocalDate.parse(publicationDateStr, formatter);
+
+        long daysBetween = ChronoUnit.DAYS.between(filingDate, publicationDate);
+        System.out.println("Gap between Filing Date and Publication Date: " + daysBetween + " days");
+        driver.quit();
+    }
+}
